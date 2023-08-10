@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Input</title>
+</head>
+<body>
+    <form id="dataForm">
+        <div id="inputContainer">
+            <div class="inputGroup">
+                <label for="country">Country:</label>
+                <input type="text" name="country" required>
+                <label for="rate">English Fluency Rate (%):</label>
+                <input type="number" name="rate" min="0" max="100" required>
+            </div>
+        </div>
+        <button type="button" onclick="addFields()">Add More</button>
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        function addFields() {
+            const container = document.getElementById('inputContainer');
+            const inputGroup = document.createElement('div');
+            inputGroup.className = 'inputGroup';
+            inputGroup.innerHTML = `
+                <label for="country">Country:</label>
+                <input type="text" name="country" required>
+                <label for="rate">English Fluency Rate (%):</label>
+                <input type="number" name="rate" min="0" max="100" required>
+            `;
+            container.appendChild(inputGroup);
+        }
+
+        document.getElementById('dataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const countries = formData.getAll('country');
+            const rates = formData.getAll('rate').map(rate => parseFloat(rate));
+            const data = countries.map((country, index) => ({ country, rate: rates[index] }));
+
+            const response = await fetch('/process-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ data })
+            });
+
+            const result = await response.json();
+            console.log(result);
+        });
+    </script>
+</body>
+</html>

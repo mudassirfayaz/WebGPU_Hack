@@ -1,34 +1,88 @@
 const express = require('express');
+const THREE = require('three');
+
 const app = express();
 const PORT = 3000;
 
-// Middleware to parse JSON requests
-app.use(express.json());
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
 
-// Temporary storage for processed data
-let processedData = {};
+const bodyParser = require('body-parser');
 
-// Route to accept and process user input
-app.post('/process-input', (req, res) => {
+app.use(bodyParser.json());
+
+
+function setupScene() {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
+
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(1, 1, 1).normalize();
+    scene.add(light);
+
+    return { scene, camera };
+}
+
+function createBarChart(data) {
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshLambertMaterial({ color: 0x00ff00 });
+    const bars = [];
+
+    data.forEach((value, index) => {
+        const bar = new THREE.Mesh(geometry, material);
+        bar.scale.y = value;
+        bar.position.x = index * 1.5;
+        bars.push(bar);
+    });
+
+    return bars;
+}
+
+function renderWithWebGPU(data) {
+    const renderer = new THREE.WebGPURenderer();
+    const { scene, camera } = setupScene();
+
+    const bars = createBarChart(data);
+    bars.forEach(bar => scene.add(bar));
+
+    renderer.render(scene, camera);
+
+    const imgData = renderer.domElement.toDataURL("image/png");
+    return imgData;
+}
+
+function processData(inputData) {
+    // Assuming inputData is an array of numbers
+    const sum = inputData.reduce((acc, curr) => acc + curr, 0);
+    return sum;
+}
+
+app.post('/submit-input', (req, res) => {
     const userInput = req.body.data;
 
-    // Corrected the variable name here
-    console.log("Received data:", userInput);
+    const processedResult = processData(userInput);
 
-    // TODO: Process the userInput using WebGPU
-    // For now, let's just mock the processed data
-    processedData = {
-        graphData: [/*... some mock data based on userInput ...*/]
-    };
-
-    res.json({ success: true, message: 'Data processed successfully!' });
+    res.json({ success: true, message: 'Data processed successfully!', result: processedResult });
 });
 
-// Route to send processed data to frontend
-app.get('/get-graph-data', (req, res) => {
-    res.json(processedData);
+app.post('/render', (req, res) => {
+    const data = req.body.data;
+    const renderedImage = renderWithWebGPU(data);
+    res.json({ image: renderedImage });
 });
+
+app.post('/process-data', (req, res) => {
+    const userInput = req.body.data;
+
+    // For now, we'll just return the data as-is
+    res.json({ success: true, message: 'Data processed successfully!', data: userInput });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+// Route to accept and process user input
+
