@@ -1,7 +1,7 @@
 const express = require('express');
 const THREE = require('three');
 const bodyParser = require('body-parser');
-// const cors = require('cors');
+const db = require('./database');
 
 const app = express();
 const PORT = 3000;
@@ -9,13 +9,9 @@ const PORT = 3000;
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 app.use(bodyParser.json());
-// app.use(cors());
 
 // In-memory storage for the data
 let storedData = [];
-console.log("Stored data:", storedData);
-
-
 
 function setupScene() {
     const scene = new THREE.Scene();
@@ -66,11 +62,8 @@ function processData(inputData) {
 app.post('/submit-input', (req, res) => {
     const userInput = req.body.data;
 
-    console.log("Received data:", userInput); 
-
     // Store the data
     storedData.push(userInput);
-    console.log("Stored data:", storedData); 
 
     const processedResult = processData(userInput);
     res.json({ success: true, message: 'Data processed successfully!', result: processedResult });
@@ -84,14 +77,28 @@ app.post('/render', (req, res) => {
 
 app.post('/process-data', (req, res) => {
     const inputData = req.body.data;
-    storedData = [...storedData, ...inputData];  // Store the data in the array
-    console.log("Stored data:", storedData);  // Log the stored data
+
+    // Insert each data entry into the SQLite database
+    inputData.forEach(({ country, rate }) => {
+        db.run("INSERT INTO data (country, rate) VALUES (?, ?)", [country, rate], function(err) {
+            if (err) {
+                return console.error(err.message);
+            }
+            console.log(`Row inserted with ID: ${this.lastID}`);
+        });
+    });
+
     res.json({ success: true, message: 'Data processed successfully!', data: inputData });
 });
 
 // New endpoint to retrieve the stored data
 app.get('/get-data', (req, res) => {
-    res.json(storedData);
+    db.all("SELECT country, rate FROM data", [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        res.json(rows); // Send the retrieved rows to the frontend
+    });
 });
 
 app.listen(PORT, () => {
