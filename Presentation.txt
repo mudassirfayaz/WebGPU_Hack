@@ -1,3 +1,6 @@
+Here's the link: 
+https://www.canva.com/design/DAFq9WcKMH8/F6frqczht973JzpwYUjGjA/edit?utm_content=DAFq9WcKMH8&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
 Leveraging WebGPU for Advanced Data Visualization
 
 Introduction:
