@@ -8,6 +8,7 @@ This project serves as the backend for a WebGPU application. It's designed to pr
 
 - Node.js
 - npm
+- SQLite (integrated)
 
 ### Installation
 
@@ -39,21 +40,24 @@ The server will start, and you should see a message indicating it's running on `
 ## Usage
 
 1. Visit `http://localhost:3000/input.html` to input data.
-2. Submit the data, which will be processed and stored in the backend.
+2. Submit the data, which will be processed and stored in the SQLite database.
 3. Visit `http://localhost:3000/index.html` to view the visualized data in a 3D bar chart.
 
 ## API Endpoints
 
-- **POST /process-data**: Accepts user input for processing and stores it.
-- **GET /get-data**: Returns the processed data to be visualized on the frontend.
+- **POST /process-data**: Accepts user input for processing and stores it in the SQLite database.
+- **GET /get-data**: Returns the processed data from the SQLite database to be visualized on the frontend.
 
 ## Future Work
 
 - Integrate WebGPU for data processing.
 - Enhance the API for more complex simulations.
 - Implement error handling and validation for user input.
-- Integrate a database for persistent data storage.
 - Extend visualization capabilities, including 3D visualization options.
+
+## Database
+
+The project uses SQLite for data storage. This provides a lightweight solution for storing and retrieving user input data.
 
 ## Contributing
 
