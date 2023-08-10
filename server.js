@@ -1,15 +1,20 @@
 const express = require('express');
 const THREE = require('three');
+const bodyParser = require('body-parser');
+// const cors = require('cors');
 
 const app = express();
 const PORT = 3000;
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
-
-const bodyParser = require('body-parser');
-
 app.use(bodyParser.json());
+// app.use(cors());
+
+// In-memory storage for the data
+let storedData = [];
+console.log("Stored data:", storedData);
+
 
 
 function setupScene() {
@@ -61,8 +66,13 @@ function processData(inputData) {
 app.post('/submit-input', (req, res) => {
     const userInput = req.body.data;
 
-    const processedResult = processData(userInput);
+    console.log("Received data:", userInput); 
 
+    // Store the data
+    storedData.push(userInput);
+    console.log("Stored data:", storedData); 
+
+    const processedResult = processData(userInput);
     res.json({ success: true, message: 'Data processed successfully!', result: processedResult });
 });
 
@@ -73,16 +83,17 @@ app.post('/render', (req, res) => {
 });
 
 app.post('/process-data', (req, res) => {
-    const userInput = req.body.data;
-
-    // For now, we'll just return the data as-is
-    res.json({ success: true, message: 'Data processed successfully!', data: userInput });
+    const inputData = req.body.data;
+    storedData = [...storedData, ...inputData];  // Store the data in the array
+    console.log("Stored data:", storedData);  // Log the stored data
+    res.json({ success: true, message: 'Data processed successfully!', data: inputData });
 });
 
+// New endpoint to retrieve the stored data
+app.get('/get-data', (req, res) => {
+    res.json(storedData);
+});
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
-// Route to accept and process user input
-

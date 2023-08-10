@@ -19,8 +19,13 @@
 <script src="https://threejs.org/build/three.js"></script>
 <script>
     let scene, camera, renderer;
+    async function fetchData() {
+      const response = await fetch('http://localhost:3000/get-data');
+      const data = await response.json();
+      return data;
+    }
 
-    function init() {
+    function init(data) {
         // Scene
         scene = new THREE.Scene();
 
@@ -33,31 +38,23 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('visualization-container').appendChild(renderer.domElement);        
 
-        // Data
-        const data = [
-            { name: "India", value: 20 },
-            { name: "Pakistan", value: 58 },
-            { name: "Bangladesh", value: 58 },
-            { name: "Nigeria", value: 60 },
-            { name: "UK", value: 80 }
-        ];
-
         const barWidth = 1;
         const spacing = 2;
         const totalWidth = (barWidth + spacing) * data.length;
 
         // Create bars
         data.forEach((item, idx) => {
-            const geometry = new THREE.BoxGeometry(barWidth, item.value / 10, barWidth);
+            const geometry = new THREE.BoxGeometry(barWidth, item.rate / 10, barWidth);
             const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
             const bar = new THREE.Mesh(geometry, material);
             bar.position.x = idx * (barWidth + spacing) - totalWidth / 2 + barWidth / 2;
             scene.add(bar);
-
+            console.log(data);
+            
             // Add label
             const labelDiv = document.createElement('div');
             labelDiv.className = 'bar-label';
-            labelDiv.textContent = item.name;
+            labelDiv.textContent = item.country;
             labelDiv.style.position = 'absolute';
             labelDiv.style.bottom = '10px';
             labelDiv.style.left = (window.innerWidth / 2 + bar.position.x * 60 - 30) + 'px';  // Adjusted this line
@@ -82,9 +79,12 @@
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     });
+
+    fetchData().then(data => {
+      init(data);
+      animate();
+    });
   
-    init();
-    animate();
 </script>
 </body>
 </html>
