@@ -1,6 +1,10 @@
-# WebGPU Backend with Data Visualization
+# WebGPU Backend with Data Visualization (VisualPro)
 
 This project serves as the backend for a WebGPU application. It's designed to process user input, simulate it with WebGPU, and then send the results to the frontend to be visualized using Three.js for 3D bar chart representation.
+
+## 🏆 Hackathon Winner 🏆
+
+We are proud to announce that this project won the [WebGPU Hackathon - One-day Challenge for advanced programmers!](https://lablab.ai/event/webgpu-hackathon) hosted by lablab.ai.![](Demo/WEbGPU_Competition.png)
 
 ## Getting Started
 
@@ -66,3 +70,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ## License
 
 This project is licensed under the ISC License.
+```
